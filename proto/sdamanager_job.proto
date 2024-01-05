@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+import "sdamanager_common.proto";
+
+package moreh.sdamanager;
+option go_package = "moreh.io/go-grpc-test/internal/proto";
+
+service JobAPI {
+  rpc StartJob(ConnectionRequest) returns (ConnectionResponse) {}
+  rpc GetPlatform(PlatformRequest) returns (PlatformResponse) {}
+  rpc FinishJob(DisconnectRequest) returns (DisconnectResponse) {}
+  rpc Heartbeat (FrontendID) returns (HeartbeatResponse) {}
+}
+
+message ConnectionRequest {
+  string version = 1;
+  Token token = 2;
+  int32 frontend_id = 3;
+  int32 pid = 4;
+  string process_name = 5;
+  FinishCode code = 6;
+  string ip_addr = 7;
+  bool use_heartbeat = 8 [deprecated = true];
+  Integer sda_idx = 9;
+  string client_info = 10;
+  bool use_moreh = 11;
+  bool fault_tolerance = 12;
+  enum FinishCode {
+    NONE = 0;
+    COMPLETE = 1;
+    CANCEL = 2;
+    FORCE_CANCEL = 3;
+    SYSTEM_DOWN = 4;
+    ERROR = 5;
+    USER_ERROR = 6;
+    NOT_IMPLEMENT = 7;
+    WORKER_ERROR = 8;
+    NOT_STARTED = 9;
+    EXPIRED = 10;
+  }
+}
+
+message ConnectionResponse {
+  ResponseCode code = 1;
+  string version = 2;
+  int32 pid = 3;
+  string process_name = 4;
+  int32 frontend_id = 5;
+  int32 access_level = 6;
+  EnvironmentVariableList fault_tolerance_env_list = 7;
+  enum ResponseCode {
+    NONE = 0;
+    SUCCESS = 1;
+    INVALID_TOKEN = 2;
+    TOKEN_IN_USE = 3;
+    NOT_ENOUGH_GPU = 4;
+    INTERNAL_ERROR = 5;
+    VERSION_MISMATCH = 6;
+    PREPARE_WORKER = 7;
+    FAILURE_PREPARE_WORKER = 8;
+    UNSUPPORTED_VERSION = 9;
+    UNSUPPORTED_SDAMODEL = 11;
+    NOT_EXIST_SDA = 12;
+    ACCESS_LEVEL = 13;
+    NO_FAULT_TOLERANCE = 14;
+  }
+}
+
+message PlatformResponse {
+  int32 frontend_id = 1;
+  repeated ConnectSDA sdalist = 2;
+}
+
+message PlatformRequest {
+  // Token token = 1;     erase and reuse 1 when 1.0.2 version not used
+  int32 frontend_id = 2;
+  bool compt_idx = 3; /* device real index */
+}
+
+message HeartbeatResponse {
+  bool value = 1;
+  string status = 2;
+}
+
+message FinishStatus {
+  enum Code {
+    NONE = 0;
+    COMPLETED = 1;
+    CANCELED = 2;
+    FORCE_CANCELED = 3;
+    SYSTEM_DOWN = 4;
+    ERROR = 5;
+    USER_ERROR = 6;
+    NOT_IMPLEMENT = 7;
+    WORKER_ERROR = 8;
+    NOT_STARTED = 9;
+    EXPIRED = 10;
+    RECOVERY = 11;
+  }
+}
+
+message DisconnectRequest {
+  int32 frontend_id = 1;
+  FinishStatus.Code code = 2;
+}
+
+message DisconnectResponse {
+  FinishStatus.Code code = 1;
+}

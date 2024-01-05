@@ -1,0 +1,182 @@
+syntax = "proto3";
+
+package moreh.sdamanager;
+option go_package = "moreh.io/go-grpc-test/internal/proto";
+
+message Empty {
+}
+
+message Boolean {
+  bool value = 1;
+}
+
+message Integer {
+  int32 value = 1;
+}
+
+message StdoutMessage {
+  string value = 1;
+}
+
+message ConnectedCount {
+  int32 count = 1;
+}
+
+message ShutdownKey {
+  int32 key = 1;
+}
+
+message Priority {
+  int32 value = 1;
+}
+
+message Token {
+  string value = 1;
+  string description = 2;
+  Priority priority = 3;
+  int32 current_sda_id = 5;
+  int32 max_sda_count = 6;
+  EnvironmentVariableList envvar_list = 7;
+  string access_level = 8;
+  string working_directory = 9 [deprecated = true];
+  string worker_command = 10 [deprecated = true];
+  string worker_query_command = 11 [deprecated = true];
+  string health_check_command = 12 [deprecated = true];
+  Integer max_duplicates = 13;
+  Boolean fault_tolerance = 14;
+  EnvironmentVariableList fault_tolerance_env_list = 15;
+}
+
+message FrontendID {
+  int32 frontend_id = 1;
+}
+
+enum ResponseCode {
+  NONE = 0;
+  SUCCESS = 1;
+  INVALID_TOKEN = 2;
+  TOKEN_IN_USE = 3;
+  NOT_ENOUGH_GPU = 4;
+  INTERNAL_ERROR = 5;
+  INVALID_ARGUMENT = 6;
+  DUPLICATE_VALUE = 7;
+  FAILED_CONNECT = 8;
+  EXIST_SDA = 9;
+  NOT_EXIST_SDA = 10;
+  NOT_RUNNING = 11;
+  NOT_QUEUED = 12;
+  INVALID_JOBID = 13;
+  DEVICE_IN_USE = 14;
+  NOT_FOUND = 15;
+  EXIST_MEMBER = 16;
+  NOT_HAVE_PERMISSION = 17;
+  NOT_SUPPORTED = 18;
+  JOB_EXIST = 19;
+  SDA_IS_FULL = 20;
+  SDA_IN_USE = 21;
+  SDA_IS_CURRENT = 22;
+  IS_RESERVED_SDA = 23 [deprecated = true];
+  IS_MULTI_SDA = 24;
+  IS_DUPLICABLE_TOKEN = 25;
+  EXIST_DUPLICABLE_JOB = 26;
+  SDAMODEL_IN_USE = 27;
+}
+
+message EnvironmentVariableList {
+  repeated EnvironmentVariable envvar = 1;
+}
+
+message EnvironmentVariable {
+  string name = 1;
+  string value = 2;
+}
+
+message Version {
+  string value = 1;
+}
+
+message VersionInfoList {
+  repeated VersionInfo version_info_list = 1;
+}
+
+message VersionInfo {
+  string version = 1;
+  VersionSupported supported = 2;
+  string working_directory = 3;
+  string worker_command = 4;
+  string worker_query_command = 5;
+  string health_check_command = 6;
+  EnvironmentVariableList envvar_list = 7;
+  string latest_version = 8;
+}
+
+message VersionSupported {
+  bool value = 1;
+}
+
+message TokenList {
+  repeated Token tokens = 1;
+}
+
+message DeviceInfo {
+  string host = 1;
+  repeated int32 devices = 2;
+}
+
+// for json
+message DeviceInfoList {
+    repeated DeviceInfo device_info = 1;
+}
+
+enum GroupType {
+  BACKEND = 0;
+  SDA_MODEL = 1;
+  USER = 2;
+  MEMBERSHIP = 3;
+}
+
+message Group {
+  GroupType group_type = 1;
+  int32 id = 2;
+  string name = 3;
+  int32 backend_group_id = 4;
+  string backend_group_name = 5;
+  repeated int32 child_ids = 6;
+  repeated string values = 7;
+  string description = 8;
+}
+
+message GroupList {
+  repeated Group groups = 1;
+}
+
+message ConnectSDA {
+  int64 id = 1;
+  // Token token = 2;     erase and reuse 2 when 1.0.2 version not used
+  repeated ConnectBackend backendlist = 3;
+}
+
+message ConnectBackend {
+  int64 id = 1;
+  string type = 2;
+  string ip = 3;
+  string port = 4;
+  repeated int32 devicelist = 5;
+}
+
+
+enum ServerModule {
+  NONE_MODULE = 0;
+  MOREH_SDAMANAGER_API = 1;
+  MOREH_SDAMANAGER_CORE = 2;
+  MOREH_SDAMANAGER_SCHD = 3;
+  MOREH_WORKER_AGENT = 4;
+}
+
+message Configure {
+  ServerModule module = 1;
+  string name = 2;
+  string value = 3;
+  string default_value = 4;
+  bool mutable_modify = 5;
+}

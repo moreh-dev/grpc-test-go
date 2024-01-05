@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "sdamanager_common.proto";
+import "sdamanager_job.proto";
+
+package moreh.sdamanager;
+option go_package = "moreh.io/go-grpc-test/internal/proto";
+
+service Connection {
+  rpc MakeConnection (stream ConnectionRequest) returns (stream ConnectionResponse) {}
+}
+
+service Platform {
+  rpc StartConnection (ConnectionRequest) returns (stream ConnectionResponse) {}
+  rpc GetPlatform (Token) returns (PlatformResponse) {}
+  rpc GetPlatformWithFeID (PlatformRequest) returns (PlatformResponse) {}
+  rpc SetFinishCode (ConnectionRequest) returns (Empty) {}
+}
+
+service FrontendHeartbeat {
+  rpc Heartbeat (FrontendID) returns (Boolean) {}
+  rpc Heartbeat_new (FrontendID) returns (HeartbeatResponse) {}
+}

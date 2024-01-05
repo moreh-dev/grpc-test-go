@@ -1,0 +1,535 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "sdamanager_common.proto";
+
+package moreh.sdamanager;
+option go_package = "moreh.io/go-grpc-test/internal/proto";
+
+service UserAPI{
+  rpc ListSDAModel(Token) returns (SDAModelList) {}
+  rpc CreateSDAModel(CreateSDAModelRequest) returns (CreateSDAModelResponse) {}
+  rpc DeleteSDAModel(DeleteSDAModelRequest) returns (DeleteResponse) {}
+
+  rpc CreateSDA(CreateSDARequest) returns (CreateSDAResponse) {}
+  rpc GetSDAInfo(Token) returns (GetSDAInfoResponse) {}
+  rpc ListSDA(Empty) returns (SDAList) {}
+  rpc UpdateSDA(UpdateSDARequest) returns (UpdateResponse) {}
+  rpc DeleteSDA(DeleteSDARequest) returns (DeleteResponse) {}
+
+  rpc CreateToken(CreateTokenRequest) returns (CreateTokenResponse) {}
+  rpc ListToken(Empty) returns (TokenList) {}
+  rpc GetToken(Token) returns (GetTokenResponse) {}
+  rpc UpdateToken(UpdateTokenRequest) returns (UpdateResponse) {}
+  rpc DeleteToken(DeleteTokenRequest) returns (DeleteResponse) {}
+
+  rpc ListBackend (BackendListRequest) returns (BackendList) {}
+  rpc GetBackend (GetBackendRequest) returns (GetBackendResponse) {}
+
+  rpc ReleaseDevice(ReleaseDeviceRequest) returns (ReleaseDeviceResponse) {}
+  rpc ReleaseAllDevice(Empty) returns (Boolean) {}
+  rpc ListSDAUtilizations (ListSDAUtilizationsRequest) returns (ListSDAUtilizationsResponse) {}
+  rpc ListSDAJob (GetSDAUtilizationsRequest) returns (GetSDAUtilizationsResponse) {}
+  rpc GetSDAUtilizations (GetSDAUtilizationsRequest) returns (GetSDAUtilizationsResponse) {}
+  rpc ListJobQueue(JobQueueRequest) returns (JobQueueList) {}
+  rpc UpdateJobPriority(UpdateJobPriorityRequest) returns (UpdateResponse) {}
+  rpc ListJobHistory(JobHistoryRequest) returns (JobHistoryList) {}
+  rpc GetVersion(Empty) returns (Version) {}
+  rpc GetServerVersion(Empty) returns (ListServerVersion) {}
+  rpc ListEventLog(EventLogRequest) returns (EventLogList) {}
+
+  rpc CreateBackend(CreateBackendRequest) returns (CreateBackendResponse) {}
+  rpc DeleteBackend(DeleteBackendRequest) returns (DeleteResponse) {}
+  rpc UpdateBackend(UpdateBackendRequest) returns (UpdateResponse) {}
+  rpc UpdateDevice(UpdateDeviceRequest) returns (UpdateResponse) {}
+
+  rpc CreateVersionInfo(CreateVersionInfoRequest) returns (CreateVersionInfoResponse) {}
+  rpc DeleteVersionInfo(DeleteVersionInfoRequest) returns (DeleteResponse) {}
+  rpc UpdateVersionInfo(UpdateVersionInfoRequest) returns (UpdateResponse) {}
+  rpc ListVersionInfo(Version) returns (VersionInfoList) {}
+
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {}
+  rpc DeleteGroup(DeleteGroupRequest) returns (DeleteResponse) {}
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateResponse) {}
+  rpc ListGroup(ListGroupRequest) returns (GroupList) {}
+  rpc ChangeGroup(ChangeGroupRequest) returns (UpdateResponse) {}
+  rpc ListRelation(ListRelationRequest) returns (RelationList) {}
+
+  rpc GetDeviceUsage(DeviceUsageRequest) returns (DeviceUsageResponse) {}
+  rpc ListTokenUsage(ListTokenUsageRequest) returns (ListTokenUsageResponse) {}
+  rpc ListConfigure(ListConfigureRequest) returns (ListConfigureResponse) {}
+  rpc GetConfigure(GetConfigureRequest) returns (Configure) {}
+  rpc UpdateConfigure(UpdateConfigureRequest) returns (UpdateResponse) {}
+}
+
+message CreateSDAModelRequest {
+  SDAModel sdamodel = 1;
+  Referer referer = 2;
+}
+
+message DeleteSDAModelRequest {
+  int32 sdamodel_id = 1;
+  Referer referer = 2;
+}
+
+message CreateSDARequest {
+  int32 model_id = 1;
+  bool reserved = 2 [deprecated = true];
+  Token token = 3;
+  int32 num_devices = 4;
+  string description = 5;
+  Referer referer = 6;
+  int32 group_id = 7;
+}
+
+message UpdateSDARequest {
+  Token token = 1;
+  int32 model_id = 2;
+  Referer referer = 3;
+  int32 group_id = 4;
+  int32 sda_id = 5;
+}
+
+message DeleteSDARequest {
+  Token token = 1;
+  Referer referer = 2;
+  int32 sda_id = 3;
+  bool admin = 4;
+}
+
+message CreateSDAModelResponse {
+  ResponseCode code = 1;
+  SDAModel sdamodel = 2;
+}
+
+message CreateSDAResponse {
+  ResponseCode code = 1;
+  SDA sda = 2;
+}
+
+message UpdateResponse {
+  ResponseCode code = 1;
+}
+
+message DeleteResponse {
+  ResponseCode code = 1;
+}
+
+message CreateTokenRequest {
+  Token token = 1;
+}
+
+message CreateTokenResponse {
+  ResponseCode code = 1;
+  Token token = 2;
+}
+
+message UpdateTokenRequest {
+  Token token = 1;
+}
+
+message DeleteTokenRequest {
+  Token token = 1;
+}
+
+message JobPosition {
+  int32 priority = 1;
+  string request_time = 2;
+}
+
+message UpdateJobPriorityRequest {
+  int32 id = 1;  /* frontend id */
+  Priority priority = 2;
+  JobPosition ref_position = 3;
+}
+
+message ListSDAUtilizationsRequest {
+  Token token = 1;
+  bool adhoc = 2 [deprecated = true];
+}
+
+message GetSDAUtilizationsRequest {
+  Token token = 1;
+  bool adhoc = 2 [deprecated = true];
+}
+
+message ListSDAUtilizationsResponse {
+  int32 id = 1;
+  int32 pid = 2;
+  string ptype = 3;
+  string process_name = 4;
+  repeated SDAUtilization sdautils = 5;
+  ResponseCode code = 6;
+}
+
+message GetSDAUtilizationsResponse {
+  repeated SDAUtilization sdautils = 1;
+  ResponseCode code = 2;
+}
+
+message SDAUtilization {
+  int64 total_memory = 1;
+  int64 used_memory = 2;
+  int64 temperature = 3;
+  int32 gpu_power = 4;
+  SDA sda = 5;
+  FrontendID frontend_id = 6;
+  int32 pid = 7;
+  string ptype = 8;
+  string process_name = 9;
+}
+
+message SDAModel {
+  int32 id = 1;
+  string name = 2;
+  int32 num_devices = 3;
+  string description = 4;
+  int32 group_id = 5;
+  string group_name = 6;
+}
+
+message SDA {
+  int64 id = 1;
+  int32 model_id = 2;
+  Token token = 3;
+  bool reserved = 4 [deprecated = true];
+  int32 num_devices = 5;
+  repeated Backend backendlist = 6;
+  string description = 7;
+  string sdamodel_name = 8;
+  string model_group_name = 9;
+}
+
+message Backend {
+  int64 id = 1;
+  string type = 2;
+  string ip = 3;
+  string port = 4;
+  repeated Device devicelist = 5;
+  string name = 6;
+  string status = 7;
+  Group group = 8;
+  IPMI ipmi = 9;
+  string description = 10;
+}
+
+message Device {
+  int64 id = 1;
+  string name = 2;
+  int64 backend_id = 3;
+  string status = 4;
+  bool available = 5;
+  int64 gpu_temp = 6;
+  int64 gpu_util = 7;
+  int64 mem_temp = 8;
+  int64 mem_util = 9;
+  float mem_usage = 10;
+}
+
+
+message SDAModelList {
+  repeated SDAModel modellist = 1;
+}
+
+message SDAList {
+  repeated SDA sdalist = 1;
+}
+
+message BackendListRequest {
+  enum OrderBy {
+    ID = 0;
+    NAME = 1;
+    GROUP_NAME = 2;
+  }
+  OrderBy orderby = 1;
+}
+
+message BackendList {
+  repeated Backend backendlist = 1;
+}
+
+message JobInfo {
+  int32 id = 1;    /* frontend_id */
+  Token token = 2;
+  int32 priority = 3;
+  string status = 4;
+  int32 client_pid = 5;
+  string process_name = 6;
+  string request_time = 7;
+  string start_time = 8;
+  string end_time = 9;
+  int32 device_count = 10;
+  string device_info = 11;
+  Referer referer = 12;
+  string version = 13;
+  string backend_group_name = 14;
+  int32 sda_id = 15;
+  string client_info = 16;
+}
+
+message JobQueueList {
+  repeated JobInfo job = 1;
+}
+
+message JobHistoryList {
+  repeated JobInfo job = 1;
+  int32 total_count = 2;
+  ResponseCode code = 3;
+}
+
+message JobHistoryRequest {
+  string starttime_from = 1;
+  string starttime_to = 2;
+  string endtime_from = 3;
+  string endtime_to = 4;
+  string status = 5;
+  string search = 6;
+  int32 limit = 7;
+  int32 offset = 8;
+  FrontendID fe_id = 9;
+}
+
+message JobQueueRequest {
+  string status = 1;
+  FrontendID fe_id = 2;
+}
+
+message EventLogRequest {
+  Token token = 1;
+  EventAction action = 2;
+  bool desc = 3;
+  int32 count = 4;    // -1 to get all event log
+  int32 offset = 5;
+}
+
+message Event {
+  Token token = 1;
+  string action = 2;
+  string request = 3;
+  string response = 4;
+  string event_time = 5;
+  Referer referer = 6;
+}
+
+message EventLogList {
+  repeated Event event = 1;
+}
+
+enum EventAction {
+  NONE_ACTION = 0;
+  CREATE_SDA = 1;
+  UPDATE_SDA = 2;
+  DELETE_SDA = 3;
+  CREATE_SDAMODEL = 4;
+  DELETE_SDAMODEL = 5;
+  CREATE_BACKEND = 6;
+  UPDATE_BACKEND = 7;
+  DELETE_BACKEND = 8;
+  UPDATE_DEVICE = 9;
+  CREATE_VERSION = 10;
+  UPDATE_VERSION = 11;
+  DELETE_VERSION = 12;
+}
+
+message Referer {
+  enum Protocol {
+    NONE = 0;
+    HTTP = 1;
+    GRPC = 2;
+  }
+  Protocol protocol = 1;
+  string ip_addr = 2;
+}
+
+message ReleaseDeviceRequest {
+  Token token = 1;
+  int32 id = 2;
+  Referer referer = 3;
+  bool admin = 4;
+  int32 sda_id = 5;
+}
+
+message ReleaseDeviceResponse {
+  ResponseCode code = 1;
+}
+
+message CreateBackendRequest {
+  Backend backend = 1;
+  Referer referer = 2;
+}
+
+message CreateBackendResponse {
+  ResponseCode code = 1;
+  Backend backend = 2;
+}
+
+message DeleteBackendRequest {
+  int32 backend_id = 1;
+  Referer referer = 2;
+}
+
+message UpdateBackendRequest {
+  Backend backend = 1;
+  Referer referer = 2;
+}
+
+message UpdateDeviceRequest {
+  repeated Device devices = 1;
+  Referer referer = 2;
+}
+
+message GetSDAInfoResponse {
+  ResponseCode code = 1;
+  SDAList sdalist = 2;
+}
+
+message GetTokenResponse {
+  ResponseCode code = 1;
+  Token token = 2;
+}
+
+message CreateVersionInfoRequest {
+  VersionInfo version_info = 1;
+  Referer referer = 2;
+}
+
+message CreateVersionInfoResponse {
+  ResponseCode code = 1;
+}
+
+message UpdateVersionInfoRequest {
+  VersionInfo version_info = 1;
+  Referer referer = 2;
+}
+
+message DeleteVersionInfoRequest {
+  string version = 1;
+  Referer referer = 2;
+}
+
+message IPMI {
+  string ip = 1;
+  Status status = 2;
+  message Status {
+    int32 value = 1;
+  }
+}
+
+message GetBackendRequest {
+  int32 backend_id = 1;
+}
+
+message GetBackendResponse {
+  ResponseCode code = 1;
+  Backend backend = 2;
+}
+
+message DeviceUsageRequest {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  Token token = 3;
+}
+
+message DeviceUsage {
+  Token token = 1;
+  int32 min = 2;
+  int32 max = 3;
+  float average = 4;
+  float min_percentage = 5;
+  float max_percentage = 6;
+  float average_percentage = 7;
+  int32 total_devices = 8;
+}
+
+message DeviceUsageResponse {
+  ResponseCode code = 1;
+  DeviceUsage total_usage = 2;
+  repeated DeviceUsage usage_list = 3;
+}
+
+message CreateGroupRequest {
+  Group group = 1;
+}
+
+message CreateGroupResponse {
+  ResponseCode code = 1;
+  int32 group_id = 2;
+}
+
+message UpdateGroupRequest {
+  Group group = 1;
+}
+
+message DeleteGroupRequest {
+  GroupType group_type = 1;
+  int32 group_id = 2;
+  bool force_delete = 3;
+}
+
+message ListGroupRequest {
+  GroupType group_type = 1;
+  int32 group_id = 2;
+}
+
+message ChangeGroupRequest {
+  GroupType group_type = 1;
+  bool remove = 2;
+  int32 group_id = 3;
+  int32 child_id = 4;
+  string token = 5;
+}
+
+message ListRelationRequest {
+  int32 group_id = 1;
+}
+
+message RelationList {
+  repeated int32 ug_ids = 1;
+  repeated string user_groups = 2;
+  repeated int32 mg_ids = 3;
+  repeated string sdamodel_groups = 4;
+  repeated int32 bg_ids = 5;
+  repeated string backend_groups = 6;
+}
+
+message ListServerVersion {
+  repeated ServerVersion version_list = 1;
+}
+
+message ServerVersion {
+  string server_name = 1;
+  string version = 2;
+}
+
+message ListTokenUsageRequest {
+ Token token = 1;
+}
+
+message ListTokenUsageResponse {
+  repeated TokenUsage token_usage = 1;
+}
+
+message TokenUsage {
+  Token token = 1;
+  int64 recent_usage_sec = 2;
+  int64 total_usage_sec = 3;
+  repeated JobInfo job = 4;
+}
+
+message ListConfigureRequest {
+  ServerModule filter_module = 1;
+} 
+
+message ListConfigureResponse {
+  repeated Configure config = 1;
+}
+
+message GetConfigureRequest {
+  ServerModule module = 1;
+  string name = 2;
+} 
+message UpdateConfigureRequest {
+  ServerModule module = 1;
+  string name = 2;
+  string value = 3;
+}
