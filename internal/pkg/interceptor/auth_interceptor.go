@@ -3,6 +3,7 @@ package interceptor
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc"
@@ -36,7 +37,9 @@ func AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
 	}
 
-	token, err := utils.VerifyJWTToken(tokenString[0])
+	rawToken := strings.TrimPrefix(tokenString[0], "Bearer: ")
+
+	token, err := utils.VerifyJWTToken(rawToken)
 	if err != nil {
 		fmt.Println("invalid token")
 		return nil, status.Errorf(codes.PermissionDenied, "invalid token: %v", err)

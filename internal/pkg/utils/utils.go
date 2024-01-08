@@ -1,25 +1,40 @@
 package utils
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-const pubKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvkedJ4DdkdOSmKr42/rIZLUOSDc97w0UKlzWdEApXcilL1eFucEr+R4cZujeWsvOdWxyaA3nSGrJfqC3oiqZ1VK27wMgKRN9Q949q+iasLrmQCKAgZYRbp/TkevJdLqpZhtBdsfhjlbQXXsDgj2Tz+DWE/UEhZtl5BgUuSHvqn1YYuJCJ097lB6UK8i0hZWvejTxteTVc2mdopbXLdzoteCvgOhlhZn93Jbn8kMYlt9lidno18wJ8JN2w/9JXGFUW/xd4i/O4mStCNkWKJVqrl4OFhyHusS82xA7/V/vL7i4X1FUTfWGmX2xqoj3K4Cm29W8VpK8hsLQ+IO5rAmXCQIDAQAB"
+// keycloak's pubkey
+const pubKey = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnIwQK/tDhd7HTres6Kp4Pkfs93xMprzHZ7lYrDPa4eAgJnsGGVe4kAb//fEIQpHcqrfpBjg/8K0UXUfULEibhkAYLSyaKGs6EtvuZ7kA+zqIol9WMtk/BUaEG6KFHlIYsovIJCNygWLUqKd3t6Xmfd0q69uYJ+OuZe3P138dE0E7b7Y88M4RechBWb3lFMyhbT4kz4+jPGolEC7f3s6CgHoZbXNWhpi/zw8eDzGiNx7VJl2yoZXFiWQMnWNPFFBViQaWtNa4bQat3r8l7lys1x7TTYG+g7jLSgtQ3DQio+PidEP4z2H22GDRyC2s5jQTzTrbsgReGZeDXBwqjUvhMQIDAQAB\n-----END PUBLIC KEY-----"
 
 func VerifyJWTToken(target string) (*jwt.Token, error) {
+
+	pubKeyBytes := []byte(pubKey)
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pubKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse public key: %v", err)
+	}
+
+	// Parse the token
 	token, err := jwt.Parse(target, func(token *jwt.Token) (interface{}, error) {
-		return []byte(pubKey), nil
+		// Check the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return publicKey, nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse and verify token: %v", err)
 	}
 
-	if !token.Valid {
-		return nil, errors.New("invalid token")
+	// Verify the token claims
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return token, nil
 	}
 
-	return token, nil
+	return nil, fmt.Errorf("token validation failed")
 }
