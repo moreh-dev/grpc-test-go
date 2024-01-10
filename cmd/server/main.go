@@ -19,7 +19,8 @@ func main() {
 			grpc_middleware.ChainUnaryServer(interceptor.AuthInterceptor),
 		),
 	)
-	moreh_proto.RegisterUserAPIServer(grpcServer, sdamanager_api.NewSDAManagerAPI())
+	moreh_proto.RegisterUserAPIServer(grpcServer, sdamanager_api.NewSDAManagerUserAPI())
+	moreh_proto.RegisterJobAPIServer(grpcServer, sdamanager_api.NewSDAManagerJobAPI())
 
 	errCh := make(chan error)
 	managingChan := make(chan os.Signal, 1)
